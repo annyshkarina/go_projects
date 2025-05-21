@@ -1,0 +1,158 @@
+{\rtf1\ansi\ansicpg1251\cocoartf2709
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 AppleColorEmoji;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 package main\
+\
+import (\
+	"log"\
+	"os"\
+\
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"\
+)\
+\
+var botToken = "8123646360:AAFiDjEtsvY7v9_CNGckPmnQzdkM5N0Beio"\
+\
+func main() \{\
+	bot, err := tgbotapi.NewBotAPI(botToken)\
+	if err != nil \{\
+		log.Panic(err)\
+	\}\
+\
+	bot.Debug = true\
+	log.Printf("Authorized on account %s", bot.Self.UserName)\
+\
+	updateConfig := tgbotapi.NewUpdate(0)\
+	updateConfig.Timeout = 60\
+	updates := bot.GetUpdatesChan(updateConfig)\
+\
+	for update := range updates \{\
+		if update.Message != nil \{\
+			handleMessage(bot, update.Message)\
+		\} else if update.CallbackQuery != nil \{\
+			handleCallback(bot, update.CallbackQuery)\
+		\}\
+	\}\
+\}\
+\
+func handleMessage(bot *tgbotapi.BotAPI, message *tgbotapi.Message) \{\
+	switch message.Text \{\
+	case "/start":\
+		menu := tgbotapi.NewMessage(message.Chat.ID, "\uc0\u1047 \u1076 \u1088 \u1072 \u1074 \u1089 \u1090 \u1074 \u1091 \u1081 \u1090 \u1077 ! \u1042 \u1099 \u1073 \u1077 \u1088 \u1080 \u1090 \u1077  \u1082 \u1072 \u1090 \u1077 \u1075 \u1086 \u1088 \u1080 \u1102 :")\
+		menu.ReplyMarkup = mainMenu()\
+		bot.Send(menu)\
+	case "
+\f1 \uc0\u55357 \u56517 
+\f0  \uc0\u1052 \u1077 \u1088 \u1086 \u1087 \u1088 \u1080 \u1103 \u1090 \u1080 \u1103 ":\
+		sendInlineMenu(bot, message.Chat.ID, eventsMenu())\
+	case "
+\f1 \uc0\u55357 \u56550 
+\f0  \uc0\u1058 \u1086 \u1088 \u1075 \u1086 \u1074 \u1083 \u1103 /\u1091 \u1089 \u1083 \u1091 \u1075 \u1080 ":\
+		sendInlineMenu(bot, message.Chat.ID, servicesMenu())\
+	case "
+\f1 \uc0\u55356 \u57249 
+\f0  \uc0\u1056 \u1072 \u1079 \u1074 \u1083 \u1077 \u1095 \u1077 \u1085 \u1080 \u1103 ":\
+		sendInlineMenu(bot, message.Chat.ID, attractionsMenu())\
+	\}\
+\}\
+\
+func handleCallback(bot *tgbotapi.BotAPI, query *tgbotapi.CallbackQuery) \{\
+	switch query.Data \{\
+	case "price_list":\
+		imagePaths := []string\{"price1.jpg", "price2.jpg"\}\
+		for _, path := range imagePaths \{\
+			if _, err := os.Stat(path); err == nil \{\
+				photo := tgbotapi.NewPhoto(query.Message.Chat.ID, tgbotapi.FilePath(path))\
+				bot.Send(photo)\
+			\}\
+		\}\
+	case "application_form":\
+		filePath := "application_form.docx"\
+		if _, err := os.Stat(filePath); err == nil \{\
+			doc := tgbotapi.NewDocument(query.Message.Chat.ID, tgbotapi.FilePath(filePath))\
+			bot.Send(doc)\
+		\}\
+	case "back":\
+		menu := tgbotapi.NewMessage(query.Message.Chat.ID, "\uc0\u1042 \u1099 \u1073 \u1077 \u1088 \u1080 \u1090 \u1077  \u1088 \u1072 \u1079 \u1076 \u1077 \u1083 :")\
+		menu.ReplyMarkup = mainMenu()\
+		bot.Send(menu)\
+	\}\
+\}\
+\
+func mainMenu() tgbotapi.ReplyKeyboardMarkup \{\
+	return tgbotapi.NewReplyKeyboard(\
+		[]tgbotapi.KeyboardButton\{\{Text: "
+\f1 \uc0\u55357 \u56517 
+\f0  \uc0\u1052 \u1077 \u1088 \u1086 \u1087 \u1088 \u1080 \u1103 \u1090 \u1080 \u1103 "\}\},\
+		[]tgbotapi.KeyboardButton\{\{Text: "
+\f1 \uc0\u55357 \u56550 
+\f0  \uc0\u1058 \u1086 \u1088 \u1075 \u1086 \u1074 \u1083 \u1103 /\u1091 \u1089 \u1083 \u1091 \u1075 \u1080 "\}\},\
+		[]tgbotapi.KeyboardButton\{\{Text: "
+\f1 \uc0\u55356 \u57249 
+\f0  \uc0\u1056 \u1072 \u1079 \u1074 \u1083 \u1077 \u1095 \u1077 \u1085 \u1080 \u1103 "\}\},\
+	)\
+\}\
+\
+func eventsMenu() tgbotapi.InlineKeyboardMarkup \{\
+	return tgbotapi.NewInlineKeyboardMarkup(\
+		[]tgbotapi.InlineKeyboardButton\{\
+			tgbotapi.NewInlineKeyboardButtonURL("
+\f1 \uc0\u55357 \u56518 
+\f0  \uc0\u1055 \u1083 \u1072 \u1085  \u1084 \u1077 \u1088 \u1086 \u1087 \u1088 \u1080 \u1103 \u1090 \u1080 \u1081 ", "https://docs.google.com/spreadsheet_link"),\
+		\},\
+		[]tgbotapi.InlineKeyboardButton\{\
+			tgbotapi.NewInlineKeyboardButtonURL("
+\f1 \uc0\u55357 \u56568 
+\f0  \uc0\u1060 \u1086 \u1090 \u1086 \u1086 \u1090 \u1095 \u1077 \u1090 \u1099 ", "https://vk.com/albums-190907367"),\
+		\},\
+		[]tgbotapi.InlineKeyboardButton\{\
+			tgbotapi.NewInlineKeyboardButtonData("
+\f1 \uc0\u55357 \u56601 
+\f0  \uc0\u1053 \u1072 \u1079 \u1072 \u1076 ", "back"),\
+		\},\
+	)\
+\}\
+\
+func servicesMenu() tgbotapi.InlineKeyboardMarkup \{\
+	return tgbotapi.NewInlineKeyboardMarkup(\
+		[]tgbotapi.InlineKeyboardButton\{\
+			tgbotapi.NewInlineKeyboardButtonData("
+\f1 \uc0\u55357 \u56523 
+\f0  \uc0\u1055 \u1088 \u1072 \u1081 \u1089 -\u1083 \u1080 \u1089 \u1090 ", "price_list"),\
+		\},\
+		[]tgbotapi.InlineKeyboardButton\{\
+			tgbotapi.NewInlineKeyboardButtonData("
+\f1 \uc0\u55357 \u56516 
+\f0  \uc0\u1047 \u1072 \u1103 \u1074 \u1082 \u1072  (\u1053 \u1058 \u1054 )", "application_form"),\
+		\},\
+		[]tgbotapi.InlineKeyboardButton\{\
+			tgbotapi.NewInlineKeyboardButtonData("
+\f1 \uc0\u55357 \u56601 
+\f0  \uc0\u1053 \u1072 \u1079 \u1072 \u1076 ", "back"),\
+		\},\
+	)\
+\}\
+\
+func attractionsMenu() tgbotapi.InlineKeyboardMarkup \{\
+	return tgbotapi.NewInlineKeyboardMarkup(\
+		[]tgbotapi.InlineKeyboardButton\{\
+			tgbotapi.NewInlineKeyboardButtonData("
+\f1 \uc0\u55357 \u56496 
+\f0  \uc0\u1057 \u1090 \u1086 \u1080 \u1084 \u1086 \u1089 \u1090 \u1100 ", "price_list"),\
+		\},\
+		[]tgbotapi.InlineKeyboardButton\{\
+			tgbotapi.NewInlineKeyboardButtonData("
+\f1 \uc0\u55357 \u56601 
+\f0  \uc0\u1053 \u1072 \u1079 \u1072 \u1076 ", "back"),\
+		\},\
+	)\
+\}\
+\
+func sendInlineMenu(bot *tgbotapi.BotAPI, chatID int64, menu tgbotapi.InlineKeyboardMarkup) \{\
+	msg := tgbotapi.NewMessage(chatID, "\uc0\u1042 \u1099 \u1073 \u1077 \u1088 \u1080 \u1090 \u1077  \u1082 \u1072 \u1090 \u1077 \u1075 \u1086 \u1088 \u1080 \u1102 :")\
+	msg.ReplyMarkup = menu\
+	bot.Send(msg)\
+\}}
